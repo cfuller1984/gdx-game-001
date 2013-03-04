@@ -5,11 +5,11 @@ import com.cfuller.gdxgame001.gamemode.GameModeManager;
 import com.cfuller.gdxgame001.gameplay.GameData;
 import com.cfuller.gdxgame001.gameplay.GamePlay;
 import com.cfuller.gdxgame001.gameplay.ScoreData;
+import com.cfuller.gdxgame001.gameplay.player.PlayerController;
 import com.invertedlogic.componentsystem.Component;
 import com.invertedlogic.componentsystem.TextComponent;
 import com.invertedlogic.gameobject.GameObject;
 import com.invertedlogic.gameobject.TransformGroup;
-import com.invertedlogic.physics.RigidBody;
 import com.invertedlogic.scene.Scene;
 
 public class GameHUD extends Component {
@@ -63,8 +63,11 @@ public class GameHUD extends Component {
 		//float fps = Util.GetFPSCounter().getFPS();
 		//mFPSComponent.setText("FPS: " + String.format("%s", Float.toString(fps)));
 		
-		RigidBody rb = (RigidBody)Scene.FindGameObject("Player").getComponentOfType(RigidBody.class);
-		mFPSComponent.setText("Player velocity: " + rb.getLinearVelocity().x);
+		//RigidBody rb = (RigidBody)Scene.FindGameObject("Player").getComponentOfType(RigidBody.class);
+		//mFPSComponent.setText("Player velocity: " + rb.getLinearVelocity().x);
+		
+		PlayerController controller = (PlayerController)Scene.FindGameObject("Player").getComponentOfType(PlayerController.class);
+		mFPSComponent.setText("On Ground: " + (controller.onGround() ? "YES" : "NO"));
 	}
 	
 	public void setText(String pId, String pText)

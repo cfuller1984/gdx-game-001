@@ -66,14 +66,14 @@ public class CoinManager extends Component {
 			Coin coin = it.next();
 			
 			Transform t = coin.getTransform();
-			float distanceX = t.getWorldAlignedX() - mPlayer.getWorldAlignedX();
-			float distanceY = t.getWorldAlignedY() - mPlayer.getWorldAlignedY();
+			float distanceX = t.getCenterX() - mPlayer.getCenterX();
+			float distanceY = t.getCenterY() - mPlayer.getCenterY();
 			
 			float lerpX = (distanceX);
 			float lerpY = (distanceY);
 			
-			t.setX(t.getX() + (lerpX *-0.05f));
-			t.setY(t.getY() + (lerpY *-0.05f));
+			t.setX(t.getX() + (lerpX *-0.1f));
+			t.setY(t.getY() + (lerpY *-0.1f));
 		}
 		
 		// Collect coins when the player is close enough
@@ -130,7 +130,7 @@ public class CoinManager extends Component {
 		for (int i = 0; i < 10; ++i)
 		{
 			GameObject go = GameObjectFactory.InheritGameObject("coin", mGameObject);
-			go.getTransform().setX(mCamera.getPosition().x + mCamera.getViewportWidth() + (i * 32.0f));
+			go.getTransform().setX(mCamera.getPosition().x + mCamera.getViewportWidth() + (i * 24.0f));
 			go.getTransform().setY(660.0f);
 			
 			mCoins.add((Coin)go.getComponentOfType(Coin.class));
@@ -138,10 +138,13 @@ public class CoinManager extends Component {
 	}
 	
 	public void collectCoin(Coin pCoin) {
-		float distance = new Vector2(mPlayer.getWorldX(), mPlayer.getWorldY()).dst(pCoin.getTransform().getWorldX(), pCoin.getTransform().getWorldY());
-		if (distance < 50.0f) {
+		if (!mCollectList.contains(pCoin)) {
 			mCollectList.add(pCoin);
-		} else {
+		}
+	}
+	
+	public void attractCoin(Coin pCoin) {
+		if (!mAttractList.contains(pCoin)) {
 			mAttractList.add(pCoin);
 		}
 	}

@@ -52,8 +52,10 @@ public class PlayerController extends Component implements PhysicsConstants {
 	float mBoostVelocity;
 	float mBoostTimer;
 	RigidBody mRigidBody;
+	RigidBody mGroundSensor;
 	
 	Vector2 mPreviousPosition;
+	Vector2 mActualVelocity;
 	
 	Player mPlayer;
 	Level mLevel;
@@ -109,7 +111,7 @@ public class PlayerController extends Component implements PhysicsConstants {
 		mTouching = false;
 		mInitialTouch = false;
 		
-		mOnGround = true;
+		mOnGround = false;
 		mVelocity = initialSpeed;
 		mBoostVelocity = 0.0f;
 		mBoostTimer = 0.0f;
@@ -117,6 +119,10 @@ public class PlayerController extends Component implements PhysicsConstants {
 		
 		mQueuedAction = Action.None;
 		mAction = Action.None;
+		
+		mActualVelocity = Vector2.Zero;
+
+		mRigidBody.setLinearVelocity(mVelocity, mRigidBody.getLinearVelocity().y);
 		
 		mAnimation.play("run", false);
 	}
@@ -142,7 +148,7 @@ public class PlayerController extends Component implements PhysicsConstants {
 		{
 			//float boostAcceleration = 10.0f * pSecondsElapsed;
 			
-			//mVelocity += mSpeedIncreaseMultiplier * pSecondsElapsed;
+			mVelocity += mSpeedIncreaseMultiplier * Gdx.graphics.getDeltaTime();
 			
 			if (mBoost) {
 				mBoostTimer += Gdx.graphics.getDeltaTime();
@@ -174,12 +180,16 @@ public class PlayerController extends Component implements PhysicsConstants {
 
 			float velocity = mVelocity + mBoostVelocity;
 			mRigidBody.setLinearVelocity(velocity, mRigidBody.getLinearVelocity().y);
-			
 			//if (Float.compare(mTransform.getWorldX(), mPreviousPosition.x) == 0) {
 			//	mPlayer.die();
 			//}
 			
-			mPreviousPosition = new Vector2(mTransform.getWorldX(), mTransform.getWorldY());
+			mActualVelocity = mTransform.getWorldPosition().sub(mPreviousPosition);
+			mPreviousPosition = new Vector2(mTransform.getWorldPosition());
+			
+			//if (mActualVelocity.x == 0.0f) {
+			//	mPlayer.die();
+			//}
 			
 			if (mTouching)
 			{
@@ -250,7 +260,14 @@ public class PlayerController extends Component implements PhysicsConstants {
 
 	@Override
 	public void onEndCollision(RigidBody pRigidBody, Contact pContact) {
-		mOnGround = false;
+		String userDataA = pContact.getFixtureA().getUserData().toString();
+		String userDataB = pContact.getFixtureB().getUserData().toString();
+		
+		if (userDataA.equalsIgnoreCase("ground-sensor")
+				|| userDataB.equalsIgnoreCase("ground-sensor")) {
+			pContact.setEnabled(false);
+			mOnGround = false;
+		}
 	}
 
 	@Override
@@ -259,41 +276,40 @@ public class PlayerController extends Component implements PhysicsConstants {
 	}
 	
 	private void processCollision(RigidBody pRigidBody, Contact pContact, boolean pInitialContact) {
-		RigidBody rigidBody = (RigidBody)mGameObject.getComponentOfType(RigidBody.class);
-		Vector2 velocity = rigidBody.getLinearVelocity();
-		Vector2 normal = pContact.getWorldManifold().getNormal();
+		String userDataA = pContact.getFixtureA().getUserData().toString();
+		String userDataB = pContact.getFixtureB().getUserData().toString();
 		
-		if (Math.abs(normal.y) > 0.5f
-				&& velocity.y >= 0.0f) {
+		if (userDataA.equalsIgnoreCase("ground-sensor")
+				|| userDataB.equalsIgnoreCase("ground-sensor")) {
+			pContact.setEnabled(false);
 			mOnGround = true;
-		}
-
-		GameObject gameObject = pRigidBody.getGameObject();
-		
-		if (mBoost) {
-			if (!gameObject.getTag().equalsIgnoreCase("floor")) {
-				pContact.setEnabled(false);
+		} else if (userDataA.equalsIgnoreCase("impact-sensor")
+				|| userDataB.equalsIgnoreCase("impact-sensor")) {
+			pContact.setEnabled(false);
+			
+			if (!mBoost) {
+				mPlayer.die();
 			}
 		} else {
-			if (gameObject.getTag().equalsIgnoreCase("deadzone")) {
-				mPlayer.die();
-			} else if (gameObject.getTag().equalsIgnoreCase("guard")) {
-				pContact.setEnabled(false);
-				
-				if (pInitialContact) {
-					Guard guard = (Guard)gameObject.getComponentOfType(Guard.class);
-					GuardManager guardManager = (GuardManager)Scene.FindGameObject("Guard Manager").getComponentOfType(GuardManager.class);
-					guardManager.killGuard(guard);
+			GameObject gameObject = pRigidBody.getGameObject();
+			
+			if (mBoost) {
+				if (!gameObject.getTag().equalsIgnoreCase("floor")) {
+					pContact.setEnabled(false);
 				}
-			} else if (gameObject.getTag().equalsIgnoreCase("floor")) {
-				// On ground
 			} else {
-				// Collisions with boxes, etc.
-				if (!pRigidBody.isSensor()) {
-					if (Math.abs(normal.y) < 1.0f) {
-						//rigidBody.setLinearVelocity(0.0f, velocity.y);
-						mPlayer.die();
+				if (gameObject.getTag().equalsIgnoreCase("deadzone")) {
+					mPlayer.die();
+				} else if (gameObject.getTag().equalsIgnoreCase("guard")) {
+					pContact.setEnabled(false);
+					
+					if (pInitialContact) {
+						Guard guard = (Guard)gameObject.getComponentOfType(Guard.class);
+						GuardManager guardManager = (GuardManager)Scene.FindGameObject("Guard Manager").getComponentOfType(GuardManager.class);
+						guardManager.killGuard(guard);
 					}
+				} else if (gameObject.getTag().equalsIgnoreCase("floor")) {
+					// On ground
 				}
 			}
 		}
@@ -376,5 +392,9 @@ public class PlayerController extends Component implements PhysicsConstants {
 	
 	public void slide() {
 		mGameObject.getAnimation().play("slide", false);
+	}
+	
+	public boolean onGround() {
+		return mOnGround;
 	}
 }

@@ -68,7 +68,7 @@ public class PowerupManager extends Component {
 		if (mCollectablePowerup != null) {
 			if (mPlayer.collidesWithTransform(mCollectablePowerup.getTransform().findChildTransform("collectable"))) {
 				collectPowerup();
-			} else if (mCollectablePowerup.getTransform().getWorldX() < mCamera.getPosition().x - mCamera.getViewportWidth() / 4) {
+			} else if (mCollectablePowerup.getTransform().getWorldX() < mCamera.getPosition().x - mCamera.getViewportWidth()) {
 				GameObjectFactory.DestroyGameObject(mCollectablePowerup);
 				mCollectablePowerup = null;
 			}

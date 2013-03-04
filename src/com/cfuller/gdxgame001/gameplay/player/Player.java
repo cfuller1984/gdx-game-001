@@ -13,7 +13,6 @@ import com.invertedlogic.physics.PhysicsConstants;
 import com.invertedlogic.physics.RigidBody;
 import com.invertedlogic.scene.GameScene;
 import com.invertedlogic.scene.Scene;
-import com.invertedlogic.util.Util;
 
 public class Player extends Component {
 
@@ -55,7 +54,6 @@ public class Player extends Component {
 
 	@Override
 	public void update() {
-		Util.DebugLog("Game", "Position: " + mTransform.getX());
 		mCamera.getTransform().setX(mTransform.getX());
 		mCamera.getTransform().setY(360.0f);
 		

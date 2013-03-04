@@ -13,7 +13,6 @@ import com.invertedlogic.core.InvertedLogic;
 import com.invertedlogic.gameobject.GameObjectFactory;
 import com.invertedlogic.physics.PhysicsManager;
 import com.invertedlogic.scene.Scene;
-import com.invertedlogic.util.Util;
 
 public class GdxGame001 extends Game {
 	InputMultiplexer mInputMultiplexer;
@@ -64,7 +63,7 @@ public class GdxGame001 extends Game {
 		Gdx.gl.glClearColor(0.1f, 0.2f, 0.6f, 1.0f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
-		Util.GetFPSLogger().log();
+		//Util.GetFPSLogger().log();
 		
 		GameModeManager.Get().update();
 		GameModeManager.Get().render();

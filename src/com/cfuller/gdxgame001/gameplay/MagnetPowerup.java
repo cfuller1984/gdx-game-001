@@ -27,9 +27,9 @@ public class MagnetPowerup extends Powerup {
 	public void update() {
 		if (mCoinManager.getTransform().hasChildTransforms()) {
 			for (Transform child : mCoinManager.getTransform().getChildTransforms()) {
-				float distance = new Vector2(mPlayer.getWorldAlignedX(), mPlayer.getWorldAlignedY()).dst(child.getWorldAlignedX(), child.getWorldAlignedY());
+				float distance = new Vector2(mPlayer.getCenterX(), mPlayer.getCenterY()).dst(child.getCenterX(), child.getCenterY());
 				if (distance < 200.0f) {
-					mCoinManager.collectCoin((Coin)child.getGameObject().getComponentOfType(Coin.class));
+					mCoinManager.attractCoin((Coin)child.getGameObject().getComponentOfType(Coin.class));
 				}
 			}
 		}
